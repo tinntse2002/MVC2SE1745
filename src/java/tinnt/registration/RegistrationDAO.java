@@ -182,4 +182,15 @@ public class RegistrationDAO implements Serializable {
         }
         return false;
     }
+    
+    public boolean createNewAccount() throws SQLException, NamingException {
+        
+        try {
+            
+        } catch (SQLException ex) {
+            log("Create Account SQL" + ex.getMessage());
+        }
+        return false;
+    }
+    
 }

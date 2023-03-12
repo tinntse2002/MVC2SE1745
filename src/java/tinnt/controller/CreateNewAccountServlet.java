@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import tinnt.registration.RegistrationCreateError;
 
 /**
  *
@@ -32,8 +33,16 @@ public class CreateNewAccountServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-
+        PrintWriter out = response.getWriter();
+        
+        try {
+            //1. Check all users' errors
+            RegistrationCreateError errors = new RegistrationCreateError();
+            
+            //2. if errors occurs, show 
+            
+        } finally {
+            
         }
     }
 
