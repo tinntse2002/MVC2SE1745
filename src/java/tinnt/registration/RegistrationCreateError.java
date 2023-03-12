@@ -18,9 +18,6 @@ public class RegistrationCreateError implements Serializable{
     private String existedUsernameError;
     private String fullNameLengthError;
 
-    public RegistrationCreateError() {
-    }
-
     public String getUsernameLengthError() {
         return usernameLengthError;
     }

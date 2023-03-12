@@ -20,15 +20,17 @@ import tinnt.util.DBHelper;
  * @author Tin
  */
 public class RegistrationDAO implements Serializable {
+
     private List<RegistrationDTO> accounts;
+
     public RegistrationDTO checkLogin(String username, String password)
             throws SQLException, NamingException {
         Connection con = null;
         PreparedStatement stm = null;
         ResultSet rs = null;
-        
+
         RegistrationDTO result = null;
-        
+
         try {
             //1. Connect DB
             con = DBHelper.makeConnection();
@@ -48,7 +50,7 @@ public class RegistrationDAO implements Serializable {
                 if (rs.next()) {
                     String fullName = rs.getString("lastname");
                     boolean role = rs.getBoolean("isAdmin");
-                    
+
                     result = new RegistrationDTO(username, password, fullName, role);
                 }
             }
@@ -68,8 +70,8 @@ public class RegistrationDAO implements Serializable {
 
     public List<RegistrationDTO> getAccounts() {
         return accounts;
-    }    
-    
+    }
+
     public void searchLastname(String searchValue) throws SQLException, NamingException {
         Connection con = null;
         PreparedStatement stm = null;
@@ -84,18 +86,18 @@ public class RegistrationDAO implements Serializable {
                         + "WHERE lastname Like ?";
                 //3. Create SQL Statement
                 stm = con.prepareStatement(sql);
-                stm.setString(1,"%" + searchValue + "%");
+                stm.setString(1, "%" + searchValue + "%");
                 //4 Excute Statement to get result 
                 rs = stm.executeQuery();
                 //5. Process Result
-                while(rs.next()) {
+                while (rs.next()) {
                     String username = rs.getString("username");
                     String password = rs.getString("password");
                     String fullName = rs.getString("lastname");
                     boolean role = rs.getBoolean("isAdmin");
-                    
+
                     RegistrationDTO dto = new RegistrationDTO(username, password, fullName, role);
-                    if(this.accounts == null) {
+                    if (this.accounts == null) {
                         this.accounts = new ArrayList<>();
                     }
                     this.accounts.add(dto);
@@ -112,62 +114,24 @@ public class RegistrationDAO implements Serializable {
                 con.close();
             }
         }
-        
+
     }
-    
+
     public boolean deleteRecord(String username) throws SQLException, NamingException {
         Connection con = null;
         PreparedStatement stm = null;
         try {
             con = DBHelper.makeConnection();
-            
-            if(con != null) {
+
+            if (con != null) {
                 String sql = "Delete From Registration "
                         + "WHERE username = ?";
                 stm = con.prepareStatement(sql);
                 stm.setString(1, username);
-                
+
                 int row = stm.executeUpdate();
-                
-                if(row > 0) {
-                    return true;
-                }
-            }
-        } finally {
-            if(stm != null) {
-                stm.close();
-            }
-            
-            if(con != null) {
-                con.close();
-            }
-        }
-        return false;
-    }
-    
-    public boolean updatePassRole(String username, String password, boolean role)
-            throws SQLException, NamingException {
-        
-        Connection con = null;
-        PreparedStatement stm = null;
-        
-        try {
-            
-            con = DBHelper.makeConnection();
-            if (con != null) {
-                String sql = "UPDATE Registration "
-                        + "SET password = ?, "
-                        + "isAdmin = ? "
-                        + "WHERE username = ?";
-                
-                stm = con.prepareStatement(sql);
-                stm.setString(1, password);
-                stm.setBoolean(2, role);
-                stm.setString(3, username);
-                
-                int row = stm.executeUpdate();
-                
-                if(row > 0) {
+
+                if (row > 0) {
                     return true;
                 }
             }
@@ -175,22 +139,87 @@ public class RegistrationDAO implements Serializable {
             if (stm != null) {
                 stm.close();
             }
-            
+
             if (con != null) {
                 con.close();
             }
         }
         return false;
     }
-    
-    public boolean createNewAccount() throws SQLException, NamingException {
-        
+
+    public boolean updatePassRole(String username, String password, boolean role)
+            throws SQLException, NamingException {
+
+        Connection con = null;
+        PreparedStatement stm = null;
+
         try {
-            
-        } catch (SQLException ex) {
-            log("Create Account SQL" + ex.getMessage());
+
+            con = DBHelper.makeConnection();
+            if (con != null) {
+                String sql = "UPDATE Registration "
+                        + "SET password = ?, "
+                        + "isAdmin = ? "
+                        + "WHERE username = ?";
+
+                stm = con.prepareStatement(sql);
+                stm.setString(1, password);
+                stm.setBoolean(2, role);
+                stm.setString(3, username);
+
+                int row = stm.executeUpdate();
+
+                if (row > 0) {
+                    return true;
+                }
+            }
+        } finally {
+            if (stm != null) {
+                stm.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
         }
         return false;
     }
-    
+
+    public boolean createNewAccount(String username, String password, String lastname, boolean role)
+            throws SQLException, NamingException {
+
+        Connection con = null;
+        PreparedStatement stm = null;
+
+        try {
+
+            con = DBHelper.makeConnection();
+            if (con != null) {
+                String sql = "INSERT INTO Registration(username, password, lastname, isAdmin)"
+                        + " Value(?, ?, ?, ?)";
+
+                stm = con.prepareStatement(sql);
+                stm.setString(1, username);
+                stm.setString(2, password);
+                stm.setString(3, lastname);
+                stm.setBoolean(4, role);
+
+                int row = stm.executeUpdate();
+
+                if (row > 0) {
+                    return true;
+                }
+            }
+        } finally {
+            if (stm != null) {
+                stm.close();
+            }
+
+            if (con != null) {
+                con.close();
+            }
+        }
+        return false;
+    }
+
 }

@@ -7,12 +7,16 @@ package tinnt.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import javax.naming.NamingException;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import tinnt.registration.RegistrationCreateError;
+import tinnt.registration.RegistrationDAO;
 
 /**
  *
@@ -20,6 +24,9 @@ import tinnt.registration.RegistrationCreateError;
  */
 @WebServlet(name = "CreateNewAccountServlet", urlPatterns = {"/CreateNewAccountServlet"})
 public class CreateNewAccountServlet extends HttpServlet {
+
+    private final String INSERT_ERROR_PAGE = "createNewAccount.jsp";
+    private final String LOGIN_PAGE = "login.html";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,15 +41,60 @@ public class CreateNewAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
+
+        String username = request.getParameter("txtUsername");
+        String password = request.getParameter("txtPassword");
+        String confirm = request.getParameter("txtConfirm");
+        String fullName = request.getParameter("txtFullName");
+
+        String url = INSERT_ERROR_PAGE;
+        RegistrationCreateError errors = new RegistrationCreateError();
+        boolean foundError = false;
         try {
             //1. Check all users' errors
-            RegistrationCreateError errors = new RegistrationCreateError();
+            if (username.trim().length() < 6 || username.trim().length() > 20) {
+                foundError = true;
+                errors.setUsernameLengthError("Username length requires 6 - 20 characters");
+            }
             
-            //2. if errors occurs, show 
+            if (password.trim().length() < 6 || password.trim().length() > 30) {
+                foundError = true;
+                errors.setPasswordLengError("Password length requires 6 - 30 characters");
+            } else if (!confirm.trim().equals(password.trim())) {
+                foundError = true;
+                errors.setConfirmError("Confirm must match password");
+            }
             
+            if (fullName.trim().length() < 2 || fullName.trim().length() > 50) {
+                foundError = true;
+                errors.setFullNameLengthError("Full length requires 2 - 50 characters");
+            }
+            //2. if errors occurs -> show else -> call model 
+            if (foundError) {
+                request.setAttribute("ERROR", errors);
+            } else {
+                RegistrationDAO dao = new RegistrationDAO();
+                boolean result = dao.createNewAccount(username, password, fullName, false);
+                
+                if (result) {
+                    url = LOGIN_PAGE;
+                }
+            }
+        } catch(NamingException ex) {
+            log("Create Account     Naming" + ex.getMessage());
+        } catch(SQLException ex) {
+            log("Create Account     SQL" + ex.getMessage());
+            
+            String msg = ex.getMessage();
+            if(msg.contains("duplicate")) {
+                errors.setExistedUsernameError(username + "is Existed in System");
+            }
+            request.setAttribute("ERROR", errors);
         } finally {
+            RequestDispatcher rd = request.getRequestDispatcher(url);
+            rd.forward(request, response);
             
+            out.close();
         }
     }
 
