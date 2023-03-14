@@ -194,9 +194,10 @@ public class RegistrationDAO implements Serializable {
         try {
 
             con = DBHelper.makeConnection();
+            
             if (con != null) {
-                String sql = "INSERT INTO Registration(username, password, lastname, isAdmin)"
-                        + " Value(?, ?, ?, ?)";
+                String sql = "INSERT into Registration(username, password, lastname, isAdmin)"
+                        + " Values(?, ?, ?, ?)";
 
                 stm = con.prepareStatement(sql);
                 stm.setString(1, username);

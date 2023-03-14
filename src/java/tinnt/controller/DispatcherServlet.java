@@ -7,12 +7,15 @@ package tinnt.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Properties;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import tinnt.util.MyApplicationConstants;
 
 /**
  *
@@ -20,17 +23,17 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "DispatcherServlet", urlPatterns = {"/DispatcherServlet"})
 public class DispatcherServlet extends HttpServlet {
-    private final String LOGIN_PAGE = "login.html";
-    private final String LOGIN_CONTROLLER = "LoginServlet";
-    private final String SEARCH_CONTROLLER = "SearchLastNameServlet";
-    private final String DELETE_RECORD_CONTROLLER = "DeleteRecordServlet";
-    private final String UPDATE_PASS_ROLE_CONTROLLER = "UpdatePassRoleServlet";
-    private final String START_CONTROLLER = "StartTimeServlet";
-    private final String NULL_SERVLET = "NullServlet";
-    private final String ADD_ITEM_TO_CART_CONTROLLER = "AddItemToCartServlet";
-    private final String VIEW_CART_CONTROLLER = "viewCart.jsp";
-    private final String REMOVE_ITEMS_FROM_CART_CONTROLLER = "RemoveItemsFromCartServlet";
-    private final String CREATE_NEW_ACCOUNT_CONTROLLER = "CreateNewAccountServlet";
+//    private final String LOGIN_PAGE = "login.html";
+//    private final String LOGIN_CONTROLLER = "loginController";
+//    private final String SEARCH_CONTROLLER = "SearchLastNameServlet";
+//    private final String DELETE_RECORD_CONTROLLER = "DeleteRecordServlet";
+//    private final String UPDATE_PASS_ROLE_CONTROLLER = "UpdatePassRoleServlet";
+//    private final String START_CONTROLLER = "StartTimeServlet";
+//    private final String NULL_SERVLET = "NullServlet";
+//    private final String ADD_ITEM_TO_CART_CONTROLLER = "AddItemToCartServlet";
+//    private final String VIEW_CART_CONTROLLER = "viewCart.jsp";
+//    private final String REMOVE_ITEMS_FROM_CART_CONTROLLER = "RemoveItemsFromCartServlet";
+//    private final String CREATE_NEW_ACCOUNT_CONTROLLER = "CreateNewAccountServlet";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -43,32 +46,43 @@ public class DispatcherServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String url = LOGIN_PAGE;
         //1. Which button did user click?
         String button = request.getParameter("btAction");
+        ServletContext context = this.getServletContext();
+        Properties siteMaps = (Properties)context.getAttribute("SITEMAPS");
+        String url = siteMaps.getProperty(MyApplicationConstants.DispatchFeature.LOGIN_PAGE);
+        
         try {
             if(button == null) {
                 //fw to login page
-                url = NULL_SERVLET;
-                
+//                url = NULL_SERVLET;
+                url = siteMaps.getProperty(MyApplicationConstants.LoginFeature.START_CONTROLLER);
             } else if (button.equals("Login")) {
-                url = LOGIN_CONTROLLER;
+//                url = LOGIN_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.DispatchFeature.LOGIN_CONTROLLER);
             } else if (button.equals("Search")) {
-                url = SEARCH_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.SearchFeature.SEARCH_CONTROLLER);
             } else if (button.equals("delete")) {
-                url = DELETE_RECORD_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.SearchFeature.DELETE_CONTROLLER);
             } else if (button.equals("Update")) {
-                url = UPDATE_PASS_ROLE_CONTROLLER;
+//                url = UPDATE_PASS_ROLE_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.SearchFeature.UPDATE_CONTROLLER);
             } else if(button.equals("Add Book to Your Card")) {
-                url = ADD_ITEM_TO_CART_CONTROLLER;
+//                url = ADD_ITEM_TO_CART_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.ShoppingCartFeature.ADD_ITEM_TO_CART_CONTROLLER);
             } else if (button.equals("View Your Card")) {
-                url = VIEW_CART_CONTROLLER;
+//                url = VIEW_CART_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.ShoppingCartFeature.VIEW_CART_PAGE);
             } else if (button.equals("Add More")) {
-                url = ADD_ITEM_TO_CART_CONTROLLER;
+//                url = ADD_ITEM_TO_CART_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.ShoppingCartFeature.ADD_ITEM_TO_CART_CONTROLLER);
             } else if (button.equals("Remove")) {
-                url = REMOVE_ITEMS_FROM_CART_CONTROLLER;
+//                url = REMOVE_ITEMS_FROM_CART_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.ShoppingCartFeature.REMOVE_ITEMS_FROM_CART_CONTROLLER);
+
             } else if (button.equals("Create New Account")) {
-                url = CREATE_NEW_ACCOUNT_CONTROLLER;
+//                url = CREATE_NEW_ACCOUNT_CONTROLLER;
+                url = siteMaps.getProperty(MyApplicationConstants.LoginFeature.CREATE_NEW_ACCOUNT_CONTROLLER);
             }
         } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);

@@ -8,8 +8,10 @@ package tinnt.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Properties;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import tinnt.registration.RegistrationCreateError;
 import tinnt.registration.RegistrationDAO;
+import tinnt.util.MyApplicationConstants;
 
 /**
  *
@@ -25,8 +28,8 @@ import tinnt.registration.RegistrationDAO;
 @WebServlet(name = "CreateNewAccountServlet", urlPatterns = {"/CreateNewAccountServlet"})
 public class CreateNewAccountServlet extends HttpServlet {
 
-    private final String INSERT_ERROR_PAGE = "createNewAccount.jsp";
-    private final String LOGIN_PAGE = "login.html";
+//    private final String INSERT_ERROR_PAGE = "createNewAccount.jsp";
+//    private final String LOGIN_PAGE = "login.html";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,17 +49,23 @@ public class CreateNewAccountServlet extends HttpServlet {
         String password = request.getParameter("txtPassword");
         String confirm = request.getParameter("txtConfirm");
         String fullName = request.getParameter("txtFullName");
-
-        String url = INSERT_ERROR_PAGE;
+        
+        ServletContext context = this.getServletContext();
+        Properties siteMaps = (Properties)context.getAttribute("SITEMAPS");
+        
+//        String url = INSERT_ERROR_PAGE;
+        String url = siteMaps.getProperty(MyApplicationConstants.LoginFeature.CREATE_NEW_ACCOUNT_PAGE);
+        
         RegistrationCreateError errors = new RegistrationCreateError();
         boolean foundError = false;
+        
         try {
             //1. Check all users' errors
             if (username.trim().length() < 6 || username.trim().length() > 20) {
                 foundError = true;
                 errors.setUsernameLengthError("Username length requires 6 - 20 characters");
             }
-            
+
             if (password.trim().length() < 6 || password.trim().length() > 30) {
                 foundError = true;
                 errors.setPasswordLengError("Password length requires 6 - 30 characters");
@@ -64,7 +73,7 @@ public class CreateNewAccountServlet extends HttpServlet {
                 foundError = true;
                 errors.setConfirmError("Confirm must match password");
             }
-            
+
             if (fullName.trim().length() < 2 || fullName.trim().length() > 50) {
                 foundError = true;
                 errors.setFullNameLengthError("Full length requires 2 - 50 characters");
@@ -75,25 +84,26 @@ public class CreateNewAccountServlet extends HttpServlet {
             } else {
                 RegistrationDAO dao = new RegistrationDAO();
                 boolean result = dao.createNewAccount(username, password, fullName, false);
-                
+
                 if (result) {
-                    url = LOGIN_PAGE;
+//                    url = LOGIN_PAGE;
+                    url = siteMaps.getProperty(MyApplicationConstants.DispatchFeature.LOGIN_PAGE);
                 }
             }
-        } catch(NamingException ex) {
+        } catch (NamingException ex) {
             log("Create Account     Naming" + ex.getMessage());
-        } catch(SQLException ex) {
+        } catch (SQLException ex) {
             log("Create Account     SQL" + ex.getMessage());
-            
+
             String msg = ex.getMessage();
-            if(msg.contains("duplicate")) {
-                errors.setExistedUsernameError(username + "is Existed in System");
+            if (msg.contains("duplicate")) {
+                errors.setExistedUsernameError(username + " is Existed");
+                request.setAttribute("ERROR", errors);
             }
-            request.setAttribute("ERROR", errors);
         } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
-            
+
             out.close();
         }
     }

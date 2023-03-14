@@ -6,6 +6,8 @@
 package tinnt.controller;
 
 import java.io.IOException;
+import java.util.Properties;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import tinnt.cart.CartObj;
+import tinnt.util.MyApplicationConstants;
 
 /**
  *
@@ -20,7 +23,7 @@ import tinnt.cart.CartObj;
  */
 @WebServlet(name = "AddItemToCartServlet", urlPatterns = {"/AddItemToCartServlet"})
 public class AddItemToCartServlet extends HttpServlet {
-    private final String SHOPPING_PAGE = "shopping.html";
+//    private final String SHOPPING_PAGE = "shopping.html";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,7 +37,12 @@ public class AddItemToCartServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String url = SHOPPING_PAGE;
+        
+        ServletContext context = this.getServletContext();
+        Properties siteMaps = (Properties)context.getAttribute("SITEMAPS");
+        
+//        String url = SHOPPING_PAGE;
+        String url = siteMaps.getProperty(MyApplicationConstants.ShoppingCartFeature.SHOPPING_PAGE);
         try {
             //1. Customer goes to cart place
             HttpSession session = request.getSession();// bat buoc phai co noi chua gio

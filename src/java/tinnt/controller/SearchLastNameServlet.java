@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import tinnt.registration.RegistrationDAO;
 import tinnt.registration.RegistrationDTO;
+import tinnt.util.MyApplicationConstants;
 
 /**
  *
@@ -25,8 +28,8 @@ import tinnt.registration.RegistrationDTO;
  */
 @WebServlet(name = "SearchLastNameServlet", urlPatterns = {"/SearchLastNameServlet"})
 public class SearchLastNameServlet extends HttpServlet {
-    private final String SEARCH_PAGE = "search.html";
-    private final String SEARCH_RESULT_PAGE = "search.jsp";
+//    private final String SEARCH_PAGE = "search.html";
+//    private final String SEARCH_RESULT_PAGE = "search.jsp";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,25 +43,30 @@ public class SearchLastNameServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        String url = SEARCH_PAGE;
+
+        ServletContext context = this.getServletContext();
+        Properties siteMaps = (Properties) context.getAttribute("SITEMAPS");
+
+//        String url = SEARCH_PAGE;
+        String url = siteMaps.getProperty(MyApplicationConstants.LoginFeature.SEARCH_PAGE);
         String searchValue = request.getParameter("txtSearchValue");
         try {
-            if(searchValue.trim().length() > 0) {
+            if (searchValue.trim().length() > 0) {
                 //4. Call Model
                 RegistrationDAO dao = new RegistrationDAO();
-                
+
                 dao.searchLastname(searchValue);
                 List<RegistrationDTO> result = dao.getAccounts();
-                
+
                 request.setAttribute("SEARCHRESULT", result);
-                url = SEARCH_RESULT_PAGE;
+//                url = SEARCH_RESULT_PAGE;
+                url = siteMaps.getProperty(MyApplicationConstants.LoginFeature.SEARCH_PAGE);
             } //end search value has value
-        } catch (NamingException ex){
+        } catch (NamingException ex) {
             log("Errors occur in processing", ex.getCause());
         } catch (SQLException ex) {
             log("Errors occur in processing", ex.getCause());
-        }
-        finally {
+        } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }

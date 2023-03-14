@@ -8,13 +8,16 @@ package tinnt.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Properties;
 import javax.naming.NamingException;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import tinnt.registration.RegistrationDAO;
+import tinnt.util.MyApplicationConstants;
 
 /**
  *
@@ -22,8 +25,7 @@ import tinnt.registration.RegistrationDAO;
  */
 @WebServlet(name = "DeleteRecordServlet", urlPatterns = {"/DeleteRecordServlet"})
 public class DeleteRecordServlet extends HttpServlet {
-
-    private final String DELETE_ERROR_PAGE = "deleteErr.html";
+//    private final String DELETE_ERROR_PAGE = "deleteErr.html";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,7 +41,12 @@ public class DeleteRecordServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         PrintWriter out = response.getWriter();
-        String urlRewriting = DELETE_ERROR_PAGE;
+        
+        ServletContext context = this.getServletContext();
+        Properties siteMaps = (Properties)context.getAttribute("SITEMAPS");
+        
+//        String urlRewriting = DELETE_ERROR_PAGE;
+        String urlRewriting = siteMaps.getProperty(MyApplicationConstants.SearchFeature.DELETE_ERROR_PAGE);
 
         try {
             String username = request.getParameter("pk");

@@ -8,7 +8,9 @@ package tinnt.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Properties;
 import javax.naming.NamingException;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import tinnt.registration.RegistrationDAO;
 import tinnt.registration.RegistrationDTO;
+import tinnt.util.MyApplicationConstants;
 
 /**
  *
@@ -24,8 +27,8 @@ import tinnt.registration.RegistrationDTO;
  */
 @WebServlet(name = "StartTimeServlet", urlPatterns = {"/StartTimeServlet"})
 public class StartTimeServlet extends HttpServlet {
-    private final String LOGIN_PAGE = "login.html";
-    private final String SEARCH_PAGE = "search.jsp";
+//    private final String LOGIN_PAGE = "login.html";
+//    private final String SEARCH_PAGE = "search.jsp";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,12 +44,16 @@ public class StartTimeServlet extends HttpServlet {
 
         response.setContentType("text/html;charset=UTF-8");
 
+        ServletContext context = this.getServletContext();
+        Properties siteMaps = (Properties) context.getAttribute("SITEMAPS");
+
         Cookie[] cookies = null;
-        String url = LOGIN_PAGE;
+//        String url = LOGIN_PAGE;
+        String url = siteMaps.getProperty(MyApplicationConstants.DispatchFeature.LOGIN_PAGE);
         try {
             cookies = request.getCookies();
-            
-            if(cookies !=null) {
+
+            if (cookies != null) {
                 //2. Get last cookies
                 Cookie lastcookies = cookies[cookies.length - 1];
                 String username = lastcookies.getName();
@@ -59,8 +66,9 @@ public class StartTimeServlet extends HttpServlet {
 //                        + "?btAction=Login"
 //                        + "&txtUsername=" +username;
 //                        + "&txtPasword" + password;
-                if(result != null) {
-                    url = SEARCH_PAGE;
+                if (result != null) {
+//                    url = SEARCH_PAGE;
+                    url = siteMaps.getProperty(MyApplicationConstants.LoginFeature.SEARCH_PAGE);
                 }
             }//end cookies had existed
         } catch (SQLException ex) {

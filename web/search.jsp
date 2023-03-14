@@ -12,13 +12,15 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Search</title>
+        <title>Search Page</title>
     </head>
 
     <body>
         <font color="red">
         Welcome, ${sessionScope.USER.fullName}
+
         </font>
+        
         <form action="DispatcherServlet">
             Search Value <input type="text" name="txtSearchValue"
                                 value="${param.txtSearchValue}" /> <br/>
